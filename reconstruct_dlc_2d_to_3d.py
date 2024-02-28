@@ -1,15 +1,16 @@
-from pathlib import Path
-import numpy as np
 import logging
 import multiprocessing
+from pathlib import Path
 from typing import Union
+
+import numpy as np
 
 from anipose_utils.anipose_object_loader import load_anipose_calibration_toml_from_path
 
 logger = logging.getLogger(__name__)
 
-def reconstruct_3d(freemocap_data_2d: np.ndarray, calibration_toml_path:  Union[str, Path]):
 
+def reconstruct_3d(freemocap_data_2d: np.ndarray, calibration_toml_path: Union[str, Path]):
     anipose_calibration_object = load_anipose_calibration_toml_from_path(calibration_toml_path)
 
     freemocap_data_3d, reprojection_error_data3d, not_sure_what_this_repro_error_is_for = triangulate_3d_data(
@@ -22,15 +23,13 @@ def reconstruct_3d(freemocap_data_2d: np.ndarray, calibration_toml_path:  Union[
     return freemocap_data_3d
 
 
-
 def triangulate_3d_data(
-    #this triangulate function is taken directly from FreeMoCap, hence why 'mediapipe' is thrown around a lot 
-    anipose_calibration_object,
-    mediapipe_2d_data: np.ndarray,
-    use_triangulate_ransac: bool = False,
-    kill_event: multiprocessing.Event = None,
+        # this triangulate function is taken directly from FreeMoCap, hence why 'mediapipe' is thrown around a lot
+        anipose_calibration_object,
+        mediapipe_2d_data: np.ndarray,
+        use_triangulate_ransac: bool = False,
+        kill_event: multiprocessing.Event = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    
     number_of_cameras = mediapipe_2d_data.shape[0]
     number_of_frames = mediapipe_2d_data.shape[1]
     number_of_tracked_points = mediapipe_2d_data.shape[2]
@@ -83,9 +82,9 @@ if __name__ == '__main__':
     from visualization.scatter_plot_of_3d_data import MainWindow
     from PyQt6.QtWidgets import QApplication
 
-    
     path_to_recording_folder = Path(r'D:\sfn\michael_wobble\recording_13_56_45_gmt-5')
-    calibration_toml_path = Path(r"D:\sfn\michael_wobble\recording_13_56_45_gmt-5\recording_13_56_45_gmt-5_camera_calibration.toml")
+    calibration_toml_path = Path(
+        r"D:\sfn\michael_wobble\recording_13_56_45_gmt-5\recording_13_56_45_gmt-5_camera_calibration.toml")
 
     # path_to_recording_folder = Path(r'D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3')
     # calibration_toml_path = Path(r"D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3\recording_12_07_09_gmt-5__MDN_wobble_3_camera_calibration.toml")
@@ -96,17 +95,13 @@ if __name__ == '__main__':
 
     # quick scatter plot of the 3d data
 
-    path_to_3d_data = path_to_recording_folder/'output_data'/'raw_data'/'mediapipe3dData_numFrames_numTrackedPoints_spatialXYZ.npy'
+    path_to_3d_data = path_to_recording_folder / 'output_data' / 'raw_data' / 'mediapipe3dData_numFrames_numTrackedPoints_spatialXYZ.npy'
     mediapipe_3d_data = np.load(path_to_3d_data)
 
     freemocap_3d_data = np.concatenate((mediapipe_3d_data, dlc_3d_array), axis=1)
-
-
 
     app = QApplication([])
     win = MainWindow(mediapipe_data_3d=mediapipe_3d_data, dlc_data_3d=dlc_3d_array)
     win.show()
     app.exec()
     f = 2
-
-    

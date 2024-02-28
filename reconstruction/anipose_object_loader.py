@@ -1,13 +1,8 @@
-import filecmp
-import logging
-import shutil
 from pathlib import Path
 from typing import Union
 
 from reconstruction import (
-    freemocap_anipose,)
-
-
+    freemocap_anipose, )
 
 
 def load_anipose_calibration_toml_from_path(
@@ -20,4 +15,3 @@ def load_anipose_calibration_toml_from_path(
     except Exception as e:
         print(f"Failed to load anipose calibration info from {str(camera_calibration_data_toml_path)}")
         raise e
-

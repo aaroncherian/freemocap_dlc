@@ -1,10 +1,9 @@
-import deeplabcut
-from typing import List
-from models.project_config import ProjectConfig
 from pathlib import Path
-import yaml
+from typing import List
 
-import yaml
+import deeplabcut
+
+from models.project_config import ProjectConfig
 
 
 def create_dlc_project(config: ProjectConfig) -> str:
@@ -15,17 +14,20 @@ def create_dlc_project(config: ProjectConfig) -> str:
         config.working_directory.mkdir(parents=True, exist_ok=True)
 
     # Get a list of video paths from the specified directory
-    video_paths: List[Path] = list(config.video_directory.glob('*.mp4'))  # Adjust the glob pattern for different video formats
+    video_paths: List[Path] = list(
+        config.video_directory.glob('*.mp4'))  # Adjust the glob pattern for different video formats
 
     # Ensure there are videos to process
     if not video_paths:
         raise ValueError("No video files found in the specified directory.")
 
     # Create a new DeepLabCut project
-    config_path = deeplabcut.create_new_project(config.project_name, config.experimenter_name, [str(path) for path in video_paths], working_directory=str(config.working_directory), copy_videos=True)
-
+    config_path = deeplabcut.create_new_project(config.project_name, config.experimenter_name,
+                                                [str(path) for path in video_paths],
+                                                working_directory=str(config.working_directory), copy_videos=True)
 
     return config_path
+
 
 if __name__ == "__main__":
     # Define the project configuration
@@ -36,8 +38,8 @@ if __name__ == "__main__":
     config = ProjectConfig(
         project_name="wobble_board_project_4",
         experimenter_name="Aaron",
-        video_directory= video_directory_path,
-        working_directory= working_directory_path,
+        video_directory=video_directory_path,
+        working_directory=working_directory_path,
         copy_videos_to_dlc_folder=False,
     )
 
