@@ -1,12 +1,15 @@
-import numpy as np
-from reconstruction.anipose_object_loader import load_anipose_calibration_toml_from_path
+import logging
 import multiprocessing
 
-import logging
+import numpy as np
+
+from reconstruction.anipose_object_loader import load_anipose_calibration_toml_from_path
 
 logger = logging.getLogger(__name__)
 
-def process_2d_data_to_3d(mediapipe_2d_data: np.ndarray, calibration_toml_path: str, mediapipe_confidence_cutoff_threshold: float, kill_event: multiprocessing.Event = None):
+
+def process_2d_data_to_3d(mediapipe_2d_data: np.ndarray, calibration_toml_path: str,
+                          mediapipe_confidence_cutoff_threshold: float, kill_event: multiprocessing.Event = None):
     # Load calibration object
     anipose_calibration_object = load_anipose_calibration_toml_from_path(calibration_toml_path)
 
@@ -18,15 +21,14 @@ def process_2d_data_to_3d(mediapipe_2d_data: np.ndarray, calibration_toml_path: 
         kill_event=kill_event,
     )
 
-
     return spatial_data3d, reprojection_error_data3d
 
 
 def triangulate_3d_data(
-    anipose_calibration_object,
-    mediapipe_2d_data: np.ndarray,
-    use_triangulate_ransac: bool = False,
-    kill_event: multiprocessing.Event = None,
+        anipose_calibration_object,
+        mediapipe_2d_data: np.ndarray,
+        use_triangulate_ransac: bool = False,
+        kill_event: multiprocessing.Event = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     number_of_cameras = mediapipe_2d_data.shape[0]
     number_of_frames = mediapipe_2d_data.shape[1]

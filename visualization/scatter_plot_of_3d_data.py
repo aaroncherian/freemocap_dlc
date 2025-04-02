@@ -1,21 +1,23 @@
-
 import numpy as np
-from PyQt6.QtWidgets import QApplication, QMainWindow, QTabWidget, QVBoxLayout, QHBoxLayout, QSlider, QWidget, QCheckBox, QPushButton, QGroupBox, QLabel, QLineEdit
 from PyQt6.QtCore import Qt
-from matplotlib.figure import Figure
+from PyQt6.QtWidgets import QMainWindow, QVBoxLayout, QHBoxLayout, QSlider, QWidget, \
+    QLabel
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
+
 
 class MainWindow(QMainWindow):
-    def __init__(self, mediapipe_data_3d,dlc_data_3d):
+    def __init__(self, mediapipe_data_3d, dlc_data_3d):
         super().__init__()
         self.setWindowTitle('Spliced Data Viewer')
 
         self.layout = QVBoxLayout()
 
-        plot_widget = ScatterPlot3DWidget(mediapipe_data_3d,dlc_data_3d)
+        plot_widget = ScatterPlot3DWidget(mediapipe_data_3d, dlc_data_3d)
         # plot_widget.set_layout(self.layout)
 
         self.setCentralWidget(plot_widget)
+
 
 class ScatterPlot3DWidget(QWidget):
     def __init__(self, mediapipe_data_3d, dlc_data_3d, parent=None):
@@ -66,7 +68,8 @@ class ScatterPlot3DWidget(QWidget):
         dlc_frame_data = self.dlc_data_3d[value, :, :]
 
         # Update the scatter plot with the new data
-        self.ax.scatter(mediapipe_frame_data[:, 0], mediapipe_frame_data[:, 1], mediapipe_frame_data[:, 2], color='blue')
+        self.ax.scatter(mediapipe_frame_data[:, 0], mediapipe_frame_data[:, 1], mediapipe_frame_data[:, 2],
+                        color='blue')
         self.ax.scatter(dlc_frame_data[:, 0], dlc_frame_data[:, 1], dlc_frame_data[:, 2], color='red')
 
         # Set equal axes based on mean for mediapipe data
@@ -77,7 +80,6 @@ class ScatterPlot3DWidget(QWidget):
         # Redraw the plot
         self.canvas.draw()
 
-
 # if __name__ == '__main__':
 
 #     path_to_spliced_data = r"D:\steen_pantsOn_gait_3_cameras\output_data\mediapipe_postprocessed_3d_xyz.npy"
@@ -85,7 +87,6 @@ class ScatterPlot3DWidget(QWidget):
 #     # spliced_data = np.load(path_to_spliced_data)
 #     # path_to_spliced_data  = r'D:\steen_pantsOn_gait_3_cameras\output_data\raw_data\mediapipe3dData_numFrames_numTrackedPoints_spatialXYZ.npy'
 #     spliced_data = np.load(path_to_spliced_data)[:,0:25,:]
-
 
 
 #     app = QApplication([])

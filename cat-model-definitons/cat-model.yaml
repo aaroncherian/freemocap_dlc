@@ -1,0 +1,205 @@
+
+# tracked_point: 
+#   name: str #name of the tracked point\
+#   bodypart: str #name of the bodypart the tracked point is on
+#   connections: [
+#     name: str #connected-thing-name
+#     rigid: bool #if the connection is rigid, the distance between connected points is constant (max and min distance are the same)
+#     max_distance: float #max distance between the points (in units of body length, e.g. 1.0 means 1 body length, 0.5 means half a body length, etc.)
+#     min_distance: float #min distance between the points    
+#   ]
+bodyparts:
+- nose
+- lip_lower
+
+- right_jaw_end
+- right_eye_inner
+- right_eye_outer
+- right_ear_base
+- right_ear_tip
+
+- left_jaw_end
+- left_eye_inner
+- left_eye_outer
+- left_ear_base
+- left_ear_tip
+
+- skull_base
+
+# spine 
+- spine_t1
+- spine_l1
+- spine_s1
+- tail_base
+- tail_mid_1
+- tail_mid_2
+- tail_tip
+
+# thorax
+- sternum_top
+- xyphoid_process
+
+# right arm
+- right_scapula_end
+- right_shoulder
+- right_elbow
+- right_wrist
+- right_front_paw_joint
+- right_front_paw_tip
+
+# left arm
+- left_scapula_end
+- left_shoulder
+- left_elbow
+- left_wrist
+- left_front_paw_joint
+- left_front_paw_tip
+
+# right leg
+- right_hip
+- right_knee
+- right_ankle
+- right_hind_paw_joint
+- right_hind_paw_tip
+
+# left leg
+- left_hip
+- left_knee
+- left_ankle
+- left_hind_paw_joint
+- left_hind_paw_tip
+
+# connections
+skeleton:
+## axial skeleton
+### skull 
+#### face
+- - nose
+  - skull_base
+
+- - nose
+  - right_eye_inner
+- - right_eye_inner
+  - right_eye_outer
+- - right_eye_outer
+  - right_ear_base
+- - right_ear_base 
+  - right_ear_tip
+- - right_ear_base
+  - skull_base
+
+- - nose
+  - left_eye_inner
+- - left_eye_inner
+  - left_eye_outer
+- - left_eye_outer
+  - left_ear_base
+- - left_ear_base 
+  - left_ear_tip
+- - left_ear_base
+  - skull_base
+
+### jaw
+- - lip_lower
+  - right_jaw_end
+- - lip_lower
+  - left_jaw_end
+- - right_jaw_end
+  - skull_base
+- - left_jaw_end
+  - skull_base
+
+## thorax
+- - spine_t1
+  - sternum_top
+- - sternum_top
+  - xyphoid_process
+- - sternum_top
+  - spine_l1
+- - spine_t1
+  - xyphoid_process
+
+## spine
+## cervical
+- - skull_base
+  - spine_t1
+- - skull_base
+  - sternum_top
+
+## thoracic
+- - spine_t1
+  - spine_l1
+
+## lumbar
+- - spine_l1
+  - spine_s1
+
+## caudal (tail)
+- - spine_s1
+  - tail_base
+- - tail_base 
+  - tail_mid_1
+- - tail_mid_1  
+  - tail_mid_2
+- - tail_mid_2  
+  - tail_tip
+
+
+## pelvis
+- - spine_s1
+  - right_hip
+- - spine_s1
+  - left_hip
+- - right_hip
+  - left_hip
+
+
+
+# right leg
+- - right_hip
+  - right_knee
+- - right_knee
+  - right_ankle
+- - right_ankle 
+  - right_hind_paw_joint
+- - right_hind_paw_joint
+  - right_hind_paw_tip
+
+# left leg
+- - left_hip
+  - left_knee
+- - left_knee
+  - left_ankle
+- - left_ankle
+  - left_hind_paw_joint
+- - left_hind_paw_joint
+  - left_hind_paw_tip
+
+# right arm
+- - sternum_top
+  - right_scapula_end
+- - right_scapula_end
+  - right_shoulder
+- - right_shoulder
+  - right_elbow
+- - right_elbow
+  - right_wrist
+- - right_wrist
+  - right_front_paw_joint
+- - right_front_paw_joint
+  - right_front_paw_tip
+
+# left arm
+- - sternum_top
+  - left_scapula_end
+- - left_scapula_end
+  - left_shoulder
+- - left_shoulder
+  - left_elbow
+- - left_elbow  
+  - left_wrist
+- - left_wrist
+  - left_front_paw_joint
+- - left_front_paw_joint
+  - left_front_paw_tip
+

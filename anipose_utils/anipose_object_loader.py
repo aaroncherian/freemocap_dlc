@@ -3,6 +3,7 @@ from typing import Union
 
 from anipose_utils import freemocap_anipose
 
+
 def load_anipose_calibration_toml_from_path(
         camera_calibration_data_toml_path: Union[str, Path],
 ):
@@ -13,4 +14,3 @@ def load_anipose_calibration_toml_from_path(
     except Exception as e:
         print(f"Failed to load anipose calibration info from {str(camera_calibration_data_toml_path)}")
         raise e
-

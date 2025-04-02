@@ -1,6 +1,8 @@
-import deeplabcut
 from pathlib import Path
 from typing import List
+
+import deeplabcut
+
 
 def add_videos_to_dlc_project(config_path: Path, video_directory: Path, video_extensions: List[str] = ['.mp4']) -> None:
     # Find new video files in the specified directory
@@ -18,7 +20,6 @@ def add_videos_to_dlc_project(config_path: Path, video_directory: Path, video_ex
 
 
 if __name__ == "__main__":
-
     config_path = Path(r"D:\sfn\michael_wobble\wobble_board_project_4-Aaron-2024-02-19\config.yaml")
     video_directory = Path(r"D:\sfn\michael_wobble\recording_16_53_56_gmt-5\synchronized_videos")
 
