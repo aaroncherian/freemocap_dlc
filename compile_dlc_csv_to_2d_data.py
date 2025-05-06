@@ -13,8 +13,6 @@ def compile_dlc_csvs(path_to_folder_with_dlc_csvs:Path,
     # Initialize an empty list to hold dataframes
     dfs = []
 
-
-
     for csv in csv_list:
         # Read each csv into a dataframe with a multi-index header
         df = pd.read_csv(csv, header=[1, 2])
@@ -40,7 +38,7 @@ def compile_dlc_csvs(path_to_folder_with_dlc_csvs:Path,
     confidence_thresholded_dlc_2d_array_XYC = apply_confidence_threshold(array=dlc_2d_array_with_confidence, threshold=confidence_threshold)
     # final_thresholded_array = apply_confidence_threshold(final_array, 0.6)
 
-    confidence_thresholded_dlc_2d_array_XY = dlc_2d_array_with_confidence[:,:,:,:2]
+    confidence_thresholded_dlc_2d_array_XY = confidence_thresholded_dlc_2d_array_XYC[:,:,:,:2]
 
     return confidence_thresholded_dlc_2d_array_XY
 
@@ -49,16 +47,11 @@ import numpy as np
 
 def apply_confidence_threshold(array, threshold):
     """
-    Set X,Y values to zero where the corresponding confidence value is below threshold.
-
-    Parameters:
-    - array: 4D numpy array with shape (num_cameras, num_frames, num_markers, 3)
-      The last dimension should have the structure (x, y, confidence).
-    - threshold: Confidence threshold. All X,Y values with a confidence below this threshold will be set to zero.
+    Set X,Y values to NaN where the corresponding confidence value is below threshold.
     """
-    confidences = array[:, :, :, 2]  # Get the confidence values
-    mask = confidences < threshold  # Create a boolean mask where the confidence values are below threshold
-    array[mask, 0:2] = np.nan  # Set the X,Y values to NaN where the mask is True
+    mask = array[..., 2] < threshold  # Shape: (num_cams, num_frames, num_markers)
+    array[mask, 0] = np.nan  # Set X to NaN where confidence is low
+    array[mask, 1] = np.nan  # Set Y to NaN where confidence is low
     return array
 
 
