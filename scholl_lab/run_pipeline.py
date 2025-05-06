@@ -38,12 +38,20 @@ def run_dlc_pipeline(
     
     # Step 2: Fill in labeled data
     logger.info("Processing labeled frames...")
+    # labeled_frames = fill_in_labelled_data_folder(
+    #     path_to_videos_for_training=data.folder_of_videos,
+    #     path_to_dlc_project_folder=project_path,
+    #     path_to_image_labels_csv=data.labels_csv_path,
+    #     scorer_name= project.experimenter
+    # )
+
     labeled_frames = fill_in_labelled_data_folder(
-        path_to_videos_for_training=data.folder_of_videos,
+        path_to_recording= data.path_to_recording,
+        video_folder_name= data.video_folder_name,
         path_to_dlc_project_folder=project_path,
-        path_to_image_labels_csv=data.labels_csv_path,
-        scorer_name= project.experimenter
+        scorer_name=project.experimenter
     )
+    
     
     # Step 3: Create training dataset
     logger.info("Creating training dataset...")
@@ -81,22 +89,30 @@ if __name__ == "__main__":
     from dlc_utils.project_config import ProjectConfig, DataConfig, TrainingConfig
 
     project_config = ProjectConfig(
-        name = "sample_data_test2",
+        name = "wobble_test",
         experimenter= "user", #can probably look into removing the experimenter/scorer entirely
-        working_directory= Path("/Users/philipqueen/DLCtest"), #optional, defaults to CWD otherwise
+        working_directory= Path(r"C:\Users\aaron\Documents\dlc_testing"), #optional, defaults to CWD otherwise
         bodyparts=[
-            'right_eye_inner', 'left_eye_inner', 'nose',
+        "roller",
+        "mid_board",
+        "left_board",
+        "right_board",
+        "front_board",
+        "back_board"
         ],
         skeleton=[
-            ['left_eye_inner', 'nose'],
-            ['nose', 'right_eye_inner'],
         ], #skeleton is optional 
     )
     
+    # data_config = DataConfig(
+    #     folder_of_videos= Path("/Users/philipqueen/freemocap_data/recording_sessions/freemocap_test_data/synchronized_videos/"),
+    #     labels_csv_path= Path("/Users/philipqueen/freemocap_data/recording_sessions/freemocap_test_data/skellyclicker_data/2025-04-03_17-25-38_skellyclicker_output.csv")
+    # )
+
     data_config = DataConfig(
-        folder_of_videos= Path("/Users/philipqueen/freemocap_data/recording_sessions/freemocap_test_data/synchronized_videos/"),
-        labels_csv_path= Path("/Users/philipqueen/freemocap_data/recording_sessions/freemocap_test_data/skellyclicker_data/2025-04-03_17-25-38_skellyclicker_output.csv")
-    )
+        path_to_recording = Path(r'D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3'),
+        video_folder_name = 'synchronized_videos'
+    )   
 
     training_config = TrainingConfig(
         model_type = "resnet_50",
