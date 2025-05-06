@@ -25,11 +25,18 @@ def build_dlc_formatted_header(labels_dataframe: pd.DataFrame, scorer_name: str)
     return header_df, joint_names
 
 
-def fill_in_labelled_data_folder(path_to_videos_for_training: Path,
+def fill_in_labelled_data_folder(
+        path_to_recording: Path,
         path_to_dlc_project_folder: Path,
-        path_to_image_labels_csv: Path,
-        scorer_name: str = "scorer"
+        video_folder_name: str,
+        scorer_name: str = "scorer",
         ):
+
+    path_to_videos_for_training = path_to_recording/video_folder_name
+    path_to_image_labels_folder = path_to_recording / 'skellyclicker_data'
+    matching_csvs = list(path_to_image_labels_folder.glob("*skellyclicker_output*.csv"))
+    path_to_image_labels_csv = matching_csvs[0]
+
 
     labels_dataframe = pd.read_csv(path_to_image_labels_csv)
     per_video_dataframe = dict(

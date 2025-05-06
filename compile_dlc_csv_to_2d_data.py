@@ -2,19 +2,20 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-def compile_dlc_csvs(path_to_recording_folder):
+def compile_dlc_csvs(path_to_folder_with_dlc_csvs:Path,
+                     confidence_threshold:float = 0.5,
+                     ):
 
-    path_to_folder_with_csvs = path_to_recording_folder / 'dlc_data'/'iteration_2'
 
     # Filtered csv list
-    filtered_csv_list = sorted(list(path_to_folder_with_csvs.glob('*filtered*.csv')))
+    csv_list = sorted(list(path_to_folder_with_dlc_csvs.glob('*.csv')))
 
     # Initialize an empty list to hold dataframes
     dfs = []
 
 
 
-    for csv in filtered_csv_list:
+    for csv in csv_list:
         # Read each csv into a dataframe with a multi-index header
         df = pd.read_csv(csv, header=[1, 2])
         
@@ -36,7 +37,7 @@ def compile_dlc_csvs(path_to_recording_folder):
     # Concatenate all the arrays along the first axis (camera axis)
     dlc_2d_array_with_confidence = np.concatenate(dfs, axis=0)
 
-    confidence_thresholded_dlc_2d_array_XYC = apply_confidence_threshold(array=dlc_2d_array_with_confidence, threshold=0.5)
+    confidence_thresholded_dlc_2d_array_XYC = apply_confidence_threshold(array=dlc_2d_array_with_confidence, threshold=confidence_threshold)
     # final_thresholded_array = apply_confidence_threshold(final_array, 0.6)
 
     confidence_thresholded_dlc_2d_array_XY = dlc_2d_array_with_confidence[:,:,:,:2]
@@ -64,7 +65,9 @@ def apply_confidence_threshold(array, threshold):
 
 if __name__ == '__main__':
 
-    path_to_recording_folder = Path(r'D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3')
-    dlc_2d_array = compile_dlc_csvs(path_to_recording_folder)
+    path_to_folder_with_dlc_csvs = Path(r'D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3\dlc_data')
+    dlc_2d_array = compile_dlc_csvs(path_to_folder_with_dlc_csvs,
+                                    confidence_threshold=.5)
+
 
     f = 2

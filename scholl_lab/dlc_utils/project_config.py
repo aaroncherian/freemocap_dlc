@@ -52,20 +52,21 @@ class ProjectConfig:
 class DataConfig:
     """Configuration for data processing"""
 
-    folder_of_videos: Path
-    labels_csv_path: Path
+    path_to_recording:Path
+    video_folder_name: str = 'synchronized_videos'
 
-    def __post_init__(self):
-        if isinstance(self.folder_of_videos, str):
-            self.folder_of_videos = Path(self.folder_of_videos)
-        if isinstance(self.labels_csv_path, str):
-            self.labels_csv_path = Path(self.labels_csv_path)
+
+    # def __post_init__(self):
+    #     if isinstance(self.folder_of_videos, str):
+    #         self.folder_of_videos = Path(self.folder_of_videos)
+    #     if isinstance(self.labels_csv_path, str):
+    #         self.labels_csv_path = Path(self.labels_csv_path)
 
     @classmethod
     def from_config(cls, config: dict) -> "DataConfig":
         return cls(
-            folder_of_videos=config["skellyclicker_folder_of_videos"],
-            labels_csv_path=config["skellyclicker_labels_csv_path"],
+            path_to_recording=config["skellyclicker_path_to_recording"],
+            video_folder_name=config["video_folder_name"],
         )
 
     @classmethod
@@ -78,8 +79,8 @@ class DataConfig:
         auxiliaryfunctions.edit_config(
             config_path,
             {
-                "skellyclicker_folder_of_videos": str(self.folder_of_videos),
-                "skellyclicker_labels_csv_path": str(self.labels_csv_path),
+                "skellyclicker_path_to_recording": str(self.path_to_recording),
+                "video_folder_name": str(self.video_folder_name),
             },
         )
 
