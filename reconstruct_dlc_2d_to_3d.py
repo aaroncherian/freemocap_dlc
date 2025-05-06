@@ -152,20 +152,73 @@ def triangulate_3d_data(
         reprojectionError_cam_frame_marker,
     )
 
+class ResultClass:
+    def __init__(self, result=None):
+        self.result = result
+    
+def handle_thread_finished(results, result_class:ResultClass):
+    result_class.result = results[TASK_FILTERING]['result']
 
 if __name__ == '__main__':
     from compile_dlc_csv_to_2d_data import compile_dlc_csvs
+    from skellyforge.freemocap_utils.postprocessing_widgets.task_worker_thread import TaskWorkerThread
+    from skellyforge.freemocap_utils.config import default_settings
 
-
+    from skellyforge.freemocap_utils.constants import (
+    TASK_FILTERING,
+    PARAM_CUTOFF_FREQUENCY,
+    PARAM_SAMPLING_RATE,
+    PARAM_ORDER,
+    PARAM_ROTATE_DATA,
+    TASK_SKELETON_ROTATION,
+    TASK_INTERPOLATION,
+)
     path_to_recording_folder = Path(r'D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3')
     path_to_calibration_toml = list(path_to_recording_folder.glob('*calibration.toml'))[0]
-    path_to_folder_of_dlc_csvs = path_to_recording_folder / 'dlc_data' 
+    path_to_folder_of_dlc_csvs = path_to_recording_folder / 'dlc_data'
+    path_to_recording_folder = Path(r'D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3')
     
+    #BW filter settings
+    order = 4
+    cutoff_frequency = 6.0
+    sampling_rate = 30.0
+
+    #landmark names
+    landmark_names = [
+        'right_board',
+        'left_board',
+        'front_board',
+        'back_board',
+        'mid_board',
+        'roller']
+
+
 
     dlc_2d_array = compile_dlc_csvs(path_to_folder_of_dlc_csvs,
                                     confidence_threshold=.5)
     dlc_3d_array = reconstruct_3d(dlc_2d_array, path_to_calibration_toml)
 
-    data_dict = {'board': dlc_3d_array}
+    adjusted_settings = default_settings.copy()
+    adjusted_settings[TASK_FILTERING][PARAM_CUTOFF_FREQUENCY] = cutoff_frequency
+    adjusted_settings[TASK_FILTERING][PARAM_SAMPLING_RATE] = sampling_rate
+    adjusted_settings[TASK_FILTERING][PARAM_ORDER] = order
+    adjusted_settings[TASK_SKELETON_ROTATION][PARAM_ROTATE_DATA] = False
+    
+    task_list = [TASK_INTERPOLATION, TASK_FILTERING]
+    result_handler = ResultClass()
+    worker_thread = TaskWorkerThread(
+        raw_skeleton_data= dlc_3d_array,
+        task_list=task_list,
+        landmark_names=landmark_names,
+        settings=adjusted_settings,
+        all_tasks_finished_callback=lambda results: handle_thread_finished(results, result_handler),
+    )
+
+    worker_thread.start()
+    worker_thread.join()
+
+    processed_dlc_3d_array = result_handler.result
+
+    data_dict = {'dlc_data': processed_dlc_3d_array}
     plot_3d_scatter(data_dict)
 
