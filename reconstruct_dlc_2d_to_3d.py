@@ -162,7 +162,8 @@ if __name__ == '__main__':
     path_to_folder_of_dlc_csvs = path_to_recording_folder / 'dlc_data' 
     
 
-    dlc_2d_array = compile_dlc_csvs(path_to_folder_of_dlc_csvs)
+    dlc_2d_array = compile_dlc_csvs(path_to_folder_of_dlc_csvs,
+                                    confidence_threshold=.5)
     dlc_3d_array = reconstruct_3d(dlc_2d_array, path_to_calibration_toml)
 
     data_dict = {'board': dlc_3d_array}
