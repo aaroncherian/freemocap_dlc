@@ -163,7 +163,6 @@ if __name__ == '__main__':
     from compile_dlc_csv_to_2d_data import compile_dlc_csvs
     from skellyforge.freemocap_utils.postprocessing_widgets.task_worker_thread import TaskWorkerThread
     from skellyforge.freemocap_utils.config import default_settings
-
     from skellyforge.freemocap_utils.constants import (
     TASK_FILTERING,
     PARAM_CUTOFF_FREQUENCY,
@@ -173,52 +172,75 @@ if __name__ == '__main__':
     TASK_SKELETON_ROTATION,
     TASK_INTERPOLATION,
 )
-    path_to_recording_folder = Path(r'D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3')
+    from skellymodels.experimental.model_redo.managers.human import Human
+    from skellymodels.experimental.model_redo.tracker_info.model_info import ModelInfo
+
+    path_to_recording_folder = Path(r'D:\ferret_em_talk\ferret_04_28_25')
     path_to_calibration_toml = list(path_to_recording_folder.glob('*calibration.toml'))[0]
     path_to_folder_of_dlc_csvs = path_to_recording_folder / 'dlc_data'
-    path_to_recording_folder = Path(r'D:\sfn\michael_wobble\recording_12_07_09_gmt-5__MDN_wobble_3')
-    
+    use_skellyforge = True
+
     #BW filter settings
     order = 4
     cutoff_frequency = 6.0
-    sampling_rate = 30.0
+    sampling_rate = 90.0
 
     #landmark names
     landmark_names = [
-        'right_board',
-        'left_board',
-        'front_board',
-        'back_board',
-        'mid_board',
-        'roller']
+        'nose',
+        'right_eye',
+        'right_ear',
+        'left_eye',
+        'left_ear',
+        'toy']
 
 
+    path_to_ouput_folder = path_to_recording_folder / 'output_data'
+    path_to_ouput_folder.mkdir(parents=True, exist_ok=True)
+
+    path_to_raw_data_folder = path_to_ouput_folder / 'raw_data'
+    path_to_raw_data_folder.mkdir(parents=True, exist_ok=True)  
 
     dlc_2d_array = compile_dlc_csvs(path_to_folder_of_dlc_csvs,
-                                    confidence_threshold=.5)
-    dlc_3d_array = reconstruct_3d(dlc_2d_array, path_to_calibration_toml)
-
-    adjusted_settings = default_settings.copy()
-    adjusted_settings[TASK_FILTERING][PARAM_CUTOFF_FREQUENCY] = cutoff_frequency
-    adjusted_settings[TASK_FILTERING][PARAM_SAMPLING_RATE] = sampling_rate
-    adjusted_settings[TASK_FILTERING][PARAM_ORDER] = order
-    adjusted_settings[TASK_SKELETON_ROTATION][PARAM_ROTATE_DATA] = False
+                                    confidence_threshold=.6)
     
-    task_list = [TASK_INTERPOLATION, TASK_FILTERING]
-    result_handler = ResultClass()
-    worker_thread = TaskWorkerThread(
-        raw_skeleton_data= dlc_3d_array,
-        task_list=task_list,
-        landmark_names=landmark_names,
-        settings=adjusted_settings,
-        all_tasks_finished_callback=lambda results: handle_thread_finished(results, result_handler),
-    )
+    dlc_3d_array = reconstruct_3d(dlc_2d_array, path_to_calibration_toml)
+    np.save(path_to_raw_data_folder/'dlc_3dData_numFrames_numTrackedPoints_spatialXYZ.npy', dlc_3d_array)
 
-    worker_thread.start()
-    worker_thread.join()
 
-    processed_dlc_3d_array = result_handler.result
+    if use_skellyforge:
+        adjusted_settings = default_settings.copy()
+        adjusted_settings[TASK_FILTERING][PARAM_CUTOFF_FREQUENCY] = cutoff_frequency
+        adjusted_settings[TASK_FILTERING][PARAM_SAMPLING_RATE] = sampling_rate
+        adjusted_settings[TASK_FILTERING][PARAM_ORDER] = order
+        adjusted_settings[TASK_SKELETON_ROTATION][PARAM_ROTATE_DATA] = False
+        
+        task_list = [TASK_INTERPOLATION, TASK_FILTERING]
+        result_handler = ResultClass()
+        worker_thread = TaskWorkerThread(
+            raw_skeleton_data= dlc_3d_array,
+            task_list=task_list,
+            landmark_names=landmark_names,
+            settings=adjusted_settings,
+            all_tasks_finished_callback=lambda results: handle_thread_finished(results, result_handler),
+        )
 
-    data_dict = {'dlc_data': processed_dlc_3d_array}
+        worker_thread.start()
+        worker_thread.join()
+
+        dlc_3d_array = result_handler.result
+    
+
+    path_to_ferret_yaml = Path(__file__).parents[0]/'tracker_info'/'dlc_ferret.yaml'
+    ferret_model_info = ModelInfo(config_path=path_to_ferret_yaml)
+    skeleton = Human.from_landmarks_numpy_array(name="ferret",
+                model_info=ferret_model_info,
+                landmarks_numpy_array=dlc_3d_array)
+    skeleton.calculate()
+
+    skeleton.save_out_numpy_data(path_to_output_folder=path_to_ouput_folder)
+
+    data_dict = {'dlc_data': dlc_3d_array}
     plot_3d_scatter(data_dict)
+
 
