@@ -8,8 +8,8 @@ from reconstruction_to_3d.reconstruction import reconstruct_3d
 from reconstruction_to_3d.visualization import plot_3d_scatter
 from reconstruction_to_3d.postprocessing import process_and_filter_data
 from reconstruction_to_3d.compile_dlc_csv_to_2d_data import compile_dlc_csvs
-from skellymodels.experimental.model_redo.managers.human import Human
-from skellymodels.experimental.model_redo.tracker_info.model_info import ModelInfo
+from skellymodels.managers.animal import Animal
+from skellymodels.tracker_info.model_info import ModelInfo
 
 
 # Configure logger
@@ -105,16 +105,21 @@ def process_recording_session(
         )
 
     logger.info("Processing with skeleton model")
-    path_to_ferret_yaml = Path(__file__).parents[0] / 'reconstruction_to_3d' / 'tracker_info' / 'dlc_ferret.yaml'
+    path_to_ferret_yaml = Path(__file__).parents[0] / 'reconstruction_to_3d' / 'tracker_info' / 'dlc_ears_only_ferret.yaml'
     ferret_model_info = ModelInfo(config_path=path_to_ferret_yaml)
     
-    skeleton = Human.from_landmarks_numpy_array( #not a human but it still does the job
-        name="ferret",
+    skeleton = Animal.from_tracked_points_numpy_array(
+        name = "ferret",
         model_info=ferret_model_info,
-        landmarks_numpy_array=dlc_3d_array
+        tracked_points_numpy_array=dlc_3d_array
     )
+
     skeleton.calculate()
-    skeleton.save_out_numpy_data(path_to_output_folder=path_to_output_folder)
+    skeleton.save_out_numpy_data()
+    skeleton.save_out_csv_data()
+    skeleton.save_out_all_data_csv()
+    skeleton.save_out_all_data_parquet()
+
 
     if create_visualization:
         logger.info("Creating 3D visualization")
@@ -129,12 +134,13 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     
     process_recording_session(
-        path_to_recording_folder=r'D:\ferret_em_talk\ferret_04_28_25',
+        path_to_recording_folder=r'D:\ferret_em_talk\ferret_04_28_ears_nose',
+        path_to_calibration_toml=Path(r"D:\2025-04-28-calibration\2025-04-28-calibration_camera_calibration_aligned.toml"),
         use_skellyforge=False,
         filter_order=4,
-        cutoff_frequency=6.0,
+        cutoff_frequency=10.0,
         sampling_rate=90.0,
-        dlc_confidence_threshold=0.6,
+        dlc_confidence_threshold=0,
         create_visualization=True
     )
 
